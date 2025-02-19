@@ -32,3 +32,25 @@ app.post('/upload', upload.single('audioFile'), async(req, res) => {
     }
 });
 
+// Function to transcribe audio using OpenAI Whisper API
+async function transcribeAudio(filePath) {
+    const fileStream = fs.createReadStream(filePath);
+    const apiKey = process.env.OPEN_API_KEY;
+
+    const formData = new FormData();
+    formData.append('file', fileStream);
+    formData.append('model', 'whisper-1');
+
+    const response = await axios.post('https://api.openai.com/v1/audio/transcriptions', formData, {
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            ...formData.getHeaders(),
+        },
+    });
+
+    return response.data.text;
+}
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
